@@ -1,7 +1,7 @@
 export default function Main() {
   return (
     <main>
-      <form className="max-w-sm w-full mx-auto flex rounded-md border-2 border-moss overflow-hidden">
+      <form className="max-w-md w-full mx-auto flex rounded-md border-2 border-moss overflow-hidden">
         <input
           aria-label="Add a flower"
           type="text"
@@ -10,7 +10,7 @@ export default function Main() {
         />
         <button
           type="submit"
-          className="bg-moss text-moss-light px-5 py-2 font-medium hover:opacity-90 transition"
+          className="bg-moss text-moss-light px-5 py-2 font-medium hover:opacity-90"
         >
           + Add flower
         </button>
