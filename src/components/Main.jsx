@@ -1,12 +1,26 @@
 export default function Main() {
+  const flowers = ["Peony", "Lavender", "Sunflower"];
+  const flowersListItems = flowers.map((flower) => (
+    <li key={flower}>{flower}</li>
+  ));
+
   function handleClick() {
     console.log("I was clicked!");
   }
 
+  function handleSubmit(e) {
+    e.preventDefault();
+    console.log("Form submitted!");
+  }
+
   return (
-    <main>
-      <form className="max-w-md w-full mx-auto flex rounded-lg border-2 border-moss overflow-hidden">
+    <main className="flex flex-col gap-3">
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-md w-full mx-auto flex rounded-lg border-2 border-moss overflow-hidden"
+      >
         <input
+          name="flower"
           aria-label="Add a flower"
           type="text"
           placeholder="e.g. peony"
@@ -21,6 +35,7 @@ export default function Main() {
           flower
         ></button>
       </form>
+      <ul className="list-disc pl-15">{flowersListItems}</ul>
     </main>
   );
 }
