@@ -10,9 +10,9 @@ export default function Main() {
         />
         <button
           type="submit"
-          className="bg-moss text-moss-light px-5 py-2 font-medium hover:opacity-90"
+          className="bg-moss before:content-['+'] before:mr-2 text-moss-light px-5 py-2 font-medium hover:opacity-90"
         >
-          + Add flower
+          Add flower
         </button>
       </form>
     </main>
