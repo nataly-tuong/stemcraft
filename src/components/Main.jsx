@@ -12,7 +12,7 @@ export default function Main() {
           type="submit"
           className="bg-moss text-moss-light px-5 py-2 font-medium hover:opacity-90 transition"
         >
-          + add
+          + Add flower
         </button>
       </form>
     </main>
