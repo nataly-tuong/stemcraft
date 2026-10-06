@@ -11,6 +11,9 @@ export default function Main() {
   function handleSubmit(e) {
     e.preventDefault();
     console.log("Form submitted!");
+    const formData = new FormData(e.currentTarget);
+    const newFlower = formData.get("flower");
+    console.log(newFlower);
   }
 
   return (
@@ -24,7 +27,7 @@ export default function Main() {
           aria-label="Add a flower"
           type="text"
           placeholder="e.g. peony"
-          className="flex-1 px-4 py-2 outline-none bg-white text-moss placeholder:text-gray-400"
+          className="flex-1 text-black px-4 py-2 outline-none bg-white  placeholder:text-gray-400"
         />
         <button
           onClick={handleClick}
