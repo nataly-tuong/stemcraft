@@ -1,5 +1,8 @@
+import React from "react";
+
 export default function Main() {
-  const flowers = ["Peony", "Lavender", "Sunflower"];
+  const [flowers, setFlowers] = React.useState([]);
+
   const flowersListItems = flowers.map((flower) => (
     <li key={flower}>{flower}</li>
   ));
@@ -13,7 +16,8 @@ export default function Main() {
     console.log("Form submitted!");
     const formData = new FormData(e.currentTarget);
     const newFlower = formData.get("flower");
-    console.log(newFlower);
+
+    setFlowers((prevFlowers) => [...prevFlowers, newFlower]);
   }
 
   return (
