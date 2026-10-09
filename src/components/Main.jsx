@@ -41,7 +41,7 @@ export default function Main() {
       {flowers.length > 0 ? (
         <section className="px-4">
           <h2 className="font-bold text-xl mb-5">Flowers on hand:</h2>
-          <ul className="list-disc pl-5 mb-5" aria-live="polite">
+          <ul className="list-disc pl-10 mb-5" aria-live="polite">
             {flowersListItems}
           </ul>
           <div className="bg-white border-solid border-2 border-moss rounded-lg p-4 flex gap-4 w-full items-center justify-between">
