@@ -11,19 +11,15 @@ export default function Main() {
     console.log("I was clicked!");
   }
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    console.log("Form submitted!");
-    const formData = new FormData(e.currentTarget);
+  function addFlower(formData) {
     const newFlower = formData.get("flower");
-
     setFlowers((prevFlowers) => [...prevFlowers, newFlower]);
   }
 
   return (
     <main className="flex flex-col gap-3">
       <form
-        onSubmit={handleSubmit}
+        action={addFlower}
         className="max-w-md w-full mx-auto flex rounded-lg border-2 border-moss overflow-hidden"
       >
         <input
@@ -38,9 +34,9 @@ export default function Main() {
           type="submit"
           className="bg-moss before:content-['+'] before:mr-2
           text-moss-light px-5 py-2 font-medium hover:opacity-90"
-          Add
-          flower
-        ></button>
+        >
+          Add flower
+        </button>
       </form>
       <ul className="list-disc pl-15">{flowersListItems}</ul>
     </main>
