@@ -46,7 +46,7 @@ export default function Main() {
             <h3 className="font-bold mb-2">Ready for a bouquet?</h3>
             <p>Generate an arrangement from your list of flowers.</p>
           </div>
-          <button className="bg-lime-600 px-2 py-1 text-moss-light rounded-lg">
+          <button className="hover:opacity-80 bg-lime-600 px-2 py-1 text-moss-light rounded-lg">
             Get an arrangement
           </button>
         </div>
