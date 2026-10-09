@@ -38,7 +38,19 @@ export default function Main() {
           Add flower
         </button>
       </form>
-      <ul className="list-disc pl-15">{flowersListItems}</ul>
+      <section className="px-4">
+        <h2 className="font-bold text-xl mb-5">Flowers on hand:</h2>
+        <ul aria-live="polite">{flowersListItems}</ul>
+        <div className="bg-white border-solid border-2 border-moss rounded-lg p-4 flex gap-4 max-w-sm">
+          <div>
+            <h3 className="font-bold mb-2">Ready for a bouquet?</h3>
+            <p>Generate an arrangement from your list of flowers.</p>
+          </div>
+          <button className="bg-lime-600 px-2 py-1 text-moss-light rounded-lg">
+            Get an arrangement
+          </button>
+        </div>
+      </section>
     </main>
   );
 }
