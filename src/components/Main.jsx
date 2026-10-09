@@ -49,7 +49,7 @@ export default function Main() {
               <h3 className="font-bold mb-2">Ready for a bouquet?</h3>
               <p>Generate an arrangement from your list of flowers.</p>
             </div>
-            <button className="hover:opacity-80 bg-moss px-4 py-2 text-moss-light rounded-lg">
+            <button className="hover:opacity-80 font-bold bg-moss px-4 py-2 text-moss-light rounded-lg">
               Get an arrangement
             </button>
           </div>
