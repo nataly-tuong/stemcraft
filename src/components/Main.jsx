@@ -6,11 +6,10 @@ import { getArrangementFromMistal } from "../ai";
 export default function Main() {
   const [flowers, setFlowers] = React.useState([]);
 
-  const [arrangementShown, setArrangementShown] = React.useState(false);
+  const [arrangement, setArrangement] = React.useState("false");
 
   async function getArrangement() {
     const arrangementMarkdown = await getArrangementFromMistal(flowers);
-    console.log(arrangementMarkdown);
   }
 
   function handleClick() {
@@ -48,7 +47,7 @@ export default function Main() {
         <FlowersList getArrangement={getArrangement} flowers={flowers} />
       )}
 
-      {arrangementShown && <AIArrangement />}
+      {arrangement && <AIArrangemet arrangement={arrangement} />}
     </main>
   );
 }
