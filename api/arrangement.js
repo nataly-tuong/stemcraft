@@ -21,6 +21,14 @@ export async function getArrangementFromMistral(flowersArr) {
     });
     return response.choices[0].message.content;
   } catch (err) {
-    console.error(err.message);
+    console.error("Arrangement API error:", err);
+    console.error(
+      "Hugging Face error details:",
+      JSON.stringify(err.httpResponse?.body ?? err.message, null, 2),
+    );
+
+    return res.status(500).json({
+      error: "Failed to generate arrangement.",
+    });
   }
 }
