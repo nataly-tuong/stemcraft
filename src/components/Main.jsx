@@ -6,7 +6,7 @@ import { getArrangementFromMistral } from "../ai";
 export default function Main() {
   const [flowers, setFlowers] = React.useState([]);
 
-  const [arrangement, setArrangement] = React.useState("false");
+  const [arrangement, setArrangement] = React.useState("");
 
   async function getArrangement() {
     const arrangementMarkdown = await getArrangementFromMistral(flowers);
@@ -47,7 +47,7 @@ export default function Main() {
         <FlowersList getArrangement={getArrangement} flowers={flowers} />
       )}
 
-      {arrangement && <AIArrangemet arrangement={arrangement} />}
+      {arrangement && <AIArrangement arrangement={arrangement} />}
     </main>
   );
 }
