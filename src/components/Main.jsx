@@ -1,7 +1,7 @@
 import React from "react";
 import AIArrangement from "./AIArrangement.jsx";
 import FlowersList from "./FlowersList.jsx";
-import { getArrangementFromMistal } from "../ai";
+import { getArrangementFromMistral } from "../ai";
 
 export default function Main() {
   const [flowers, setFlowers] = React.useState([]);
@@ -9,7 +9,7 @@ export default function Main() {
   const [arrangement, setArrangement] = React.useState("false");
 
   async function getArrangement() {
-    const arrangementMarkdown = await getArrangementFromMistal(flowers);
+    const arrangementMarkdown = await getArrangementFromMistral(flowers);
   }
 
   function handleClick() {
