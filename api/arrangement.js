@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
   const SYSTEM_PROMPT =
-    "You are an assistant that receives a list of flowers a user has and suggests a bouquet arrangement they could make with some or all of them. You don't need to use every flower. The arrangement can include a few extra flowers they didn't mention. Format your response in markdown.";
+    "You are an assistant that receives a list of flowers a user has and suggests a bouquet arrangement they could make with some or all of them. You don't need to use every flower. The arrangement can include a few extra flowers they didn't mention. Format your response in markdown using headings, bullet lists, and numbered lists only. Do not use tables. Do not use emojis.";
 
   try {
     const { flowers } = req.body;
@@ -37,7 +37,11 @@ export default async function handler(req, res) {
         .json({ error: data.error?.message || "Groq request failed" });
     }
 
-    res.status(200).json({ recipe: data.choices[0].message.content });
+    const clean = data.choices[0].message.content.replace(
+      /\p{Extended_Pictographic}/gu,
+      "",
+    );
+    res.status(200).json({ recipe: clean });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
