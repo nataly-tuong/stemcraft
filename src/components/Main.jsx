@@ -29,6 +29,7 @@ export default function Main() {
         className="max-w-md w-full mx-auto flex rounded-lg border-2 border-moss overflow-hidden"
       >
         <input
+          maxLength={25}
           name="flower"
           aria-label="Add a flower"
           type="text"

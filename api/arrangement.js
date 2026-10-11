@@ -7,6 +7,15 @@ export default async function handler(req, res) {
   try {
     const { flowers } = req.body;
 
+    if (
+      !Array.isArray(flowers) ||
+      flowers.length === 0 ||
+      flowers.length > 20 ||
+      flowers.some((i) => typeof i !== "string" || i.length > 25)
+    ) {
+      return res.status(400).json({ error: "Invalid flowers" });
+    }
+
     const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
