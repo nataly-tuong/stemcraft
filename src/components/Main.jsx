@@ -10,6 +10,7 @@ export default function Main() {
 
   async function getArrangement() {
     const arrangementMarkdown = await getArrangementFromMistral(flowers);
+    setArrangement(arrangementMarkdown);
   }
 
   function handleClick() {
