@@ -1,14 +1,16 @@
 import React from "react";
 import AIArrangement from "./AIArrangement.jsx";
 import FlowersList from "./FlowersList.jsx";
+import { getArrangementFromMistal } from "../ai";
 
 export default function Main() {
   const [flowers, setFlowers] = React.useState([]);
 
   const [arrangementShown, setArrangementShown] = React.useState(false);
 
-  function toggleArrangementShown() {
-    setArrangementShown((prevShown) => !prevShown);
+  async function getArrangement() {
+    const arrangementMarkdown = await getArrangementFromMistal(flowers);
+    console.log(arrangementMarkdown);
   }
 
   function handleClick() {
@@ -43,10 +45,7 @@ export default function Main() {
         </button>
       </form>
       {flowers.length > 0 && (
-        <FlowersList
-          toggleArrangementShown={toggleArrangementShown}
-          flowers={flowers}
-        />
+        <FlowersList getArrangement={getArrangement} flowers={flowers} />
       )}
 
       {arrangementShown && <AIArrangement />}

@@ -16,7 +16,7 @@ export default function FlowersList(props) {
             <p>Generate an arrangement from your list of flowers.</p>
           </div>
           <button
-            onClick={props.toggleArrangementShown}
+            onClick={props.getArrangement}
             className="hover:opacity-80 font-medium bg-moss px-4 py-2 text-moss-light rounded-lg"
           >
             Get an arrangement

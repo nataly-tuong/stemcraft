@@ -1,0 +1,16 @@
+import { InferenceClient } from "@huggingface/inference";
+
+const SYSTEM_PROMPT = `
+You are an assistant that receives a list of flowers that a user has and suggests a bouquet arrangement they could make with some or all of those flowers. You don't need to use every flower they mention in your arrangement. The arrangement can include additional flowers they didn't mention, but try not to include too many extra flowers. Format your response in markdown to make it easier to render to a web page
+`;
+const hf = new InferenceClient(import.meta.env.VITE_HF_ACCESS_TOKEN);
+
+export async function getArrangementFromMistral(flowersArr) {
+  const res = await fetch("/api/arrangement", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ flowers: flowersArr }),
+  });
+  const data = await res.json();
+  return data.recipe;
+}
