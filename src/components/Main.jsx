@@ -11,7 +11,7 @@ export default function Main() {
 
   React.useEffect(() => {
     if (arrangement !== "" && arrangementSection.current !== null) {
-      arrangementSection.current.scrollIntoView();
+      arrangementSection.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [arrangement]);
 
