@@ -11,7 +11,7 @@ export default function FlowersList(props) {
       </ul>
       {props.flowers.length > 3 && (
         <div className="bg-white border-solid border-2 border-moss rounded-lg p-4 flex gap-4 w-full items-center justify-between">
-          <div>
+          <div ref={props.ref}>
             <h3 className="font-bold mb-2">Ready for a bouquet?</h3>
             <p>Generate an arrangement from your list of flowers.</p>
           </div>

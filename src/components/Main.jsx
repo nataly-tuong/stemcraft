@@ -7,6 +7,13 @@ export default function Main() {
   const [flowers, setFlowers] = React.useState([]);
 
   const [arrangement, setArrangement] = React.useState("");
+  const arrangementSection = React.useRef(null);
+
+  React.useEffect(() => {
+    if (arrangement !== "" && arrangementSection.current !== null) {
+      arrangementSection.current.scrollIntoView();
+    }
+  }, [arrangement]);
 
   async function getArrangement() {
     const arrangementMarkdown = await generateArrangement(flowers);
@@ -46,7 +53,11 @@ export default function Main() {
         </button>
       </form>
       {flowers.length > 0 && (
-        <FlowersList getArrangement={getArrangement} flowers={flowers} />
+        <FlowersList
+          ref={arrangementSection}
+          getArrangement={getArrangement}
+          flowers={flowers}
+        />
       )}
 
       {arrangement && <AIArrangement arrangement={arrangement} />}
