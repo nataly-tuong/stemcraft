@@ -12,4 +12,4 @@ what i learned
 
 built with
 
-react, tailwind, vite, groq, vercel
+react, typescript, tailwind, vite, groq, vercel
