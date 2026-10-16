@@ -1,13 +1,13 @@
 import React from "react";
-import AIArrangement from "./AIArrangement.jsx";
-import FlowersList from "./FlowersList.jsx";
+import AIArrangement from "./AIArrangement";
+import FlowersList from "./FlowersList";
 import { generateArrangement } from "../ai";
 
 export default function Main() {
-  const [flowers, setFlowers] = React.useState([]);
+  const [flowers, setFlowers] = React.useState<string[]>([]);
 
   const [arrangement, setArrangement] = React.useState("");
-  const arrangementSection = React.useRef(null);
+  const arrangementSection = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (arrangement !== "" && arrangementSection.current !== null) {
@@ -24,8 +24,8 @@ export default function Main() {
     console.log("I was clicked!");
   }
 
-  function addFlower(formData) {
-    const newFlower = formData.get("flower");
+  function addFlower(formData: FormData) {
+    const newFlower = formData.get("flower") as string;
     setFlowers((prevFlowers) => [...prevFlowers, newFlower]);
   }
 

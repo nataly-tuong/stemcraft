@@ -1,4 +1,10 @@
-export default function FlowersList(props) {
+type Props = {
+  flowers: string[];
+  ref: React.RefObject<HTMLDivElement | null>;
+  getArrangement: () => void;
+};
+
+export default function FlowersList(props: Props) {
   const flowersListItems = props.flowers.map((flower) => (
     <li key={flower}>{flower}</li>
   ));

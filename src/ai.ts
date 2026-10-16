@@ -1,4 +1,4 @@
-export async function generateArrangement(flowersArr) {
+export async function generateArrangement(flowersArr: string[]) {
   const res = await fetch("/api/arrangement", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
