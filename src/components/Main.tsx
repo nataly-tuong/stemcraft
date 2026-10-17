@@ -1,32 +1,38 @@
 import React from "react";
+import type { JSX } from "react";
 import AIArrangement from "./AIArrangement";
 import FlowersList from "./FlowersList";
 import { generateArrangement } from "../ai";
 
-export default function Main() {
+export default function Main(): JSX.Element {
   const [flowers, setFlowers] = React.useState<string[]>([]);
 
-  const [arrangement, setArrangement] = React.useState("");
+  const [arrangement, setArrangement] = React.useState<string>("");
   const arrangementSection = React.useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  React.useEffect((): void => {
     if (arrangement !== "" && arrangementSection.current !== null) {
       arrangementSection.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [arrangement]);
 
-  async function getArrangement() {
-    const arrangementMarkdown = await generateArrangement(flowers);
+  async function getArrangement(): Promise<void> {
+    const arrangementMarkdown: string = await generateArrangement(flowers);
     setArrangement(arrangementMarkdown);
   }
 
-  function handleClick() {
+  function handleClick(): void {
     console.log("I was clicked!");
   }
 
-  function addFlower(formData: FormData) {
-    const newFlower = formData.get("flower") as string;
-    setFlowers((prevFlowers) => [...prevFlowers, newFlower]);
+  function addFlower(formData: FormData): void {
+    const newFlower = formData.get("flower");
+    if (typeof newFlower !== "string" || newFlower.trim() === "") return;
+
+    setFlowers((prevFlowers: string[]): string[] => [
+      ...prevFlowers,
+      newFlower,
+    ]);
   }
 
   return (
