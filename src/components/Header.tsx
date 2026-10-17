@@ -1,6 +1,7 @@
 import { FlowerTulipIcon } from "@phosphor-icons/react";
+import type { JSX } from "react";
 
-export default function Header() {
+export default function Header(): JSX.Element {
   return (
     <header className="flex gap-0.5 flex-1 items-center justify-center bg-moss py-4 border-b border-moss">
       <FlowerTulipIcon size={50} className="text-moss-light" />
