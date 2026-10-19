@@ -3,9 +3,9 @@
 @plugin "@tailwindcss/typography";
 @theme {
   --font-climatecrisis: "Climate Crisis", sans-serif;
-  --color-moss: #1e6b4a;
-  --color-moss-light: #e7f3ec;
-  --color-off-white: #e2e2d9;
+  --color-moss: #2e4a2e;
+  --color-moss-light: #ffffff;
+  --color-off-white: #f5f1e4;
 }
 
 body {
