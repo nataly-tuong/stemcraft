@@ -2,12 +2,13 @@ import React from "react";
 import type { JSX } from "react";
 import AIArrangement from "./AIArrangement";
 import FlowersList from "./FlowersList";
+import type { Flower } from "./FlowersList";
 import { generateArrangement } from "../ai";
 import { FlowerIcon } from "@phosphor-icons/react";
 import { Flowers } from "../flowers";
 
 export default function Main(): JSX.Element {
-  const [flowers, setFlowers] = React.useState<string[]>([]);
+  const [flowers, setFlowers] = React.useState<Flower[]>([]);
 
   const [query, setQuery] = React.useState<string>("");
   const [open, setOpen] = React.useState<boolean>(false);
@@ -24,7 +25,9 @@ export default function Main(): JSX.Element {
   }, [arrangement]);
 
   async function getArrangement(): Promise<void> {
-    const arrangementMarkdown: string = await generateArrangement(flowers);
+    const arrangementMarkdown: string = await generateArrangement(
+      flowers.map((f: Flower) => (f.qty > 1 ? `${f.qty} ${f.name}` : f.name)),
+    );
     setArrangement(arrangementMarkdown);
   }
 
@@ -48,14 +51,34 @@ export default function Main(): JSX.Element {
           )
           .slice(0, 6);
 
-  function addFlower(flower: string): void {
-    setFlowers((prev: string[]): string[] =>
-      prev.includes(flower) ? prev : [...prev, flower],
+  function addFlower(name: string): void {
+    setFlowers((prev: Flower[]): Flower[] =>
+      prev.some((f: Flower) => f.name === name)
+        ? prev.map((f: Flower) =>
+            f.name === name ? { ...f, qty: Math.min(f.qty + 1, 99) } : f,
+          )
+        : [...prev, { name, qty: 1 }],
     );
     setQuery("");
     setOpen(false);
     setActive(-1);
     setError("");
+  }
+
+  function changeQty(name: string, delta: number): void {
+    setFlowers((prev: Flower[]): Flower[] =>
+      prev.map((f: Flower) =>
+        f.name === name
+          ? { ...f, qty: Math.min(99, Math.max(1, f.qty + delta)) }
+          : f,
+      ),
+    );
+  }
+
+  function removeFlower(name: string): void {
+    setFlowers((prev: Flower[]): Flower[] =>
+      prev.filter((f: Flower) => f.name !== name),
+    );
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
@@ -149,7 +172,7 @@ export default function Main(): JSX.Element {
                   e.preventDefault();
                   addFlower(flower);
                 }}
-                className={`px-4 py-2 rounded-xl cursor-pointer text-black ${
+                className={`px-4 py-2 rounded-xl cursor-pointer text-black${
                   i === active ? "bg-[#E5E9DE] text-moss" : ""
                 }`}
               >
@@ -171,6 +194,8 @@ export default function Main(): JSX.Element {
         ref={arrangementSection}
         getArrangement={getArrangement}
         flowers={flowers}
+        onChangeQty={changeQty}
+        onRemove={removeFlower}
       />
 
       {arrangement && <AIArrangement arrangement={arrangement} />}
