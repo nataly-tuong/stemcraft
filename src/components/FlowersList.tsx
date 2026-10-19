@@ -18,8 +18,8 @@ export default function FlowersList({
     <li key={`${flower}-${i}`}>{flower}</li>
   ));
 
-  const isReady = flowers.length >= MIN_FLOWERS;
-  const remaining = MIN_FLOWERS - flowers.length;
+  const isReady: Boolean = flowers.length >= MIN_FLOWERS;
+  const remaining: number = MIN_FLOWERS - flowers.length;
 
   return (
     <section>
