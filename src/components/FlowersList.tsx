@@ -1,4 +1,5 @@
 import type { JSX, RefObject } from "react";
+import FlowerIllustration from "../assets/flower-svgrepo-com.svg";
 
 type FlowersListProps = {
   flowers: string[];
@@ -23,7 +24,13 @@ export default function FlowersList({
   return (
     <section>
       {flowers.length === 0 ? (
-        <div className="h-37.5 border-[#E3E0D5] border mb-5 shadow-sm flex flex-col rounded-md w-full bg-moss-light items-center justify-center">
+        <div className="h-37.5 border-[#E3E0D5] border mb-5 shadow-sm flex flex-col gap-2 rounded-md w-full bg-moss-light items-center justify-center">
+          <img
+            src={FlowerIllustration}
+            alt="Decorative sunflower illustration"
+            aria-hidden="true"
+            className="h-15 w-15 opacity-70 text-moss"
+          />
           <p className="text-gray-400">No flowers yet, add one to begin!</p>
         </div>
       ) : (
