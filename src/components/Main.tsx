@@ -4,7 +4,7 @@ import AIArrangement from "./AIArrangement";
 import FlowersList from "./FlowersList";
 import type { Flower } from "./FlowersList";
 import { generateArrangement } from "../ai";
-import { FlowerIcon } from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon, FlowerIcon } from "@phosphor-icons/react";
 import { Flowers } from "../flowers";
 
 export default function Main(): JSX.Element {
@@ -16,7 +16,17 @@ export default function Main(): JSX.Element {
   const [error, setError] = React.useState<string>("");
 
   const [arrangement, setArrangement] = React.useState<string>("");
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [arrangementError, setArrangementError] = React.useState<string>("");
+  const [lastGenerated, setLastGenerated] = React.useState<string | null>(null);
+  const [confirmReset, setConfirmReset] = React.useState<boolean>(false);
   const arrangementSection = React.useRef<HTMLDivElement>(null);
+
+  const signature: string = flowers
+    .map((f: Flower) => `${f.name}:${f.qty}`)
+    .sort()
+    .join("|");
+  const isUnchanged: boolean = lastGenerated === signature;
 
   React.useEffect((): void => {
     if (arrangement !== "" && arrangementSection.current !== null) {
@@ -24,11 +34,30 @@ export default function Main(): JSX.Element {
     }
   }, [arrangement]);
 
+  React.useEffect((): (() => void) | undefined => {
+    if (!confirmReset) return undefined;
+    const timer = setTimeout(() => setConfirmReset(false), 3000);
+    return () => clearTimeout(timer);
+  }, [confirmReset]);
+
   async function getArrangement(): Promise<void> {
-    const arrangementMarkdown: string = await generateArrangement(
-      flowers.map((f: Flower) => (f.qty > 1 ? `${f.qty} ${f.name}` : f.name)),
-    );
-    setArrangement(arrangementMarkdown);
+    if (isUnchanged) return;
+    const requestedSignature: string = signature;
+    setIsLoading(true);
+    setArrangementError("");
+    try {
+      const arrangementMarkdown: string = await generateArrangement(
+        flowers.map((f: Flower) => (f.qty > 1 ? `${f.qty} ${f.name}` : f.name)),
+      );
+      setArrangement(arrangementMarkdown);
+      setLastGenerated(requestedSignature);
+    } catch {
+      setArrangementError(
+        "Something went wrong making your arrangement. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const q: string = query.trim().toLowerCase();
@@ -79,6 +108,26 @@ export default function Main(): JSX.Element {
     setFlowers((prev: Flower[]): Flower[] =>
       prev.filter((f: Flower) => f.name !== name),
     );
+  }
+
+  function resetAll(): void {
+    setFlowers([]);
+    setArrangement("");
+    setLastGenerated(null);
+    setArrangementError("");
+    setQuery("");
+    setError("");
+    setOpen(false);
+    setActive(-1);
+    setConfirmReset(false);
+  }
+
+  function handleResetClick(): void {
+    if (confirmReset) {
+      resetAll();
+    } else {
+      setConfirmReset(true);
+    }
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
@@ -172,7 +221,7 @@ export default function Main(): JSX.Element {
                   e.preventDefault();
                   addFlower(flower);
                 }}
-                className={`px-4 py-2 rounded-xl cursor-pointer text-black${
+                className={`px-4 py-2 rounded-xl cursor-pointer text-black transition-colors ${
                   i === active ? "bg-[#E5E9DE] text-moss" : ""
                 }`}
               >
@@ -189,16 +238,63 @@ export default function Main(): JSX.Element {
         </p>
       )}
 
-      <h2 className="font-bold text-xl mb-5">Flowers on hand</h2>
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="font-bold text-xl">Flowers on hand</h2>
+
+        {flowers.length > 0 && (
+          <button
+            type="button"
+            onClick={handleResetClick}
+            disabled={isLoading}
+            aria-label={
+              confirmReset ? "Confirm erase all flowers" : "Erase all flowers"
+            }
+            className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+              confirmReset
+                ? "border-red-700 bg-red-50 text-red-700"
+                : "border-[#E3E0D5] bg-white text-[#7C8577] hover:text-moss"
+            }`}
+          >
+            <ArrowCounterClockwiseIcon
+              size={16}
+              weight="bold"
+              aria-hidden="true"
+            />
+            {confirmReset ? "Click again to confirm" : "Erase all"}
+          </button>
+        )}
+      </div>
+
       <FlowersList
         ref={arrangementSection}
         getArrangement={getArrangement}
         flowers={flowers}
         onChangeQty={changeQty}
         onRemove={removeFlower}
+        isLoading={isLoading}
+        isUnchanged={isUnchanged}
       />
 
-      {arrangement && <AIArrangement arrangement={arrangement} />}
+      {isLoading && (
+        <div
+          role="status"
+          className="border border-[#E3E0D5] shadow-sm rounded-lg bg-moss-light p-6 flex flex-col gap-3 animate-pulse"
+        >
+          <div className="h-5 w-1/3 rounded bg-[#E5E9DE]" />
+          <div className="h-4 w-full rounded bg-[#E5E9DE]" />
+          <div className="h-4 w-5/6 rounded bg-[#E5E9DE]" />
+          <div className="h-4 w-2/3 rounded bg-[#E5E9DE]" />
+          <span className="sr-only">Generating your arrangement</span>
+        </div>
+      )}
+
+      {arrangementError && (
+        <p role="alert" className="text-center text-sm text-red-700">
+          {arrangementError}
+        </p>
+      )}
+
+      {arrangement && !isLoading && <AIArrangement arrangement={arrangement} />}
     </main>
   );
 }

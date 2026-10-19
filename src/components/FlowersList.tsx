@@ -1,5 +1,10 @@
 import type { JSX, RefObject } from "react";
-import { MinusIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import {
+  MinusIcon,
+  PlusIcon,
+  SpinnerIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import FlowerIllustration from "../assets/flower-svgrepo-com.svg";
 
 export type Flower = { name: string; qty: number };
@@ -10,6 +15,8 @@ type FlowersListProps = {
   getArrangement: () => void;
   onChangeQty: (name: string, delta: number) => void;
   onRemove: (name: string) => void;
+  isLoading: boolean;
+  isUnchanged: boolean;
 };
 
 const MIN_FLOWERS = 4;
@@ -20,6 +27,8 @@ export default function FlowersList({
   flowers,
   onChangeQty,
   onRemove,
+  isLoading,
+  isUnchanged,
 }: FlowersListProps): JSX.Element {
   const flowersListItems = flowers.map(({ name, qty }: Flower) => (
     <li
@@ -71,6 +80,7 @@ export default function FlowersList({
 
   const isReady: boolean = flowers.length >= MIN_FLOWERS;
   const remaining: number = MIN_FLOWERS - flowers.length;
+  const locked: boolean = !isReady || isUnchanged;
 
   return (
     <section>
@@ -87,7 +97,7 @@ export default function FlowersList({
       ) : (
         <div className="h-full mb-5 shadow-sm border-[#E3E0D5] border flex flex-col rounded-md w-full bg-moss-light items-left">
           <ul
-            className="list-none flex flex-col gap-2 pl-10 pr-5 py-5"
+            className="list-none flex flex-col gap-2 px-5 pr-5 py-5"
             aria-live="polite"
           >
             {flowersListItems}
@@ -98,29 +108,40 @@ export default function FlowersList({
       <div
         ref={ref}
         className={`border-solid shadow-sm border-[#E3E0D5] border rounded-lg p-4 flex flex-col gap-4 w-full items-center justify-center ${
-          isReady ? "bg-moss-light" : "bg-[#E5E9DE]"
+          locked ? "bg-[#E5E9DE]" : "bg-moss-light"
         }`}
       >
-        <h3 className={`font-bold ${isReady ? "" : "text-moss"}`}>
+        <h3 className={`font-bold ${locked ? "text-moss" : ""}`}>
           Ready for a bouquet?
         </h3>
 
-        <p className={isReady ? "" : "text-[#7C8577]"}>
-          {isReady
-            ? "Generate an arrangement from your list of flowers."
-            : `Add ${remaining} more ${remaining === 1 ? "flower" : "flowers"} to generate an arrangement.`}
+        <p className={locked ? "text-[#7C8577]" : ""}>
+          {!isReady
+            ? `Add ${remaining} more ${remaining === 1 ? "flower" : "flowers"} to generate an arrangement.`
+            : isUnchanged
+              ? "Add, remove, or change a flower to generate a new arrangement."
+              : "Generate an arrangement from your list of flowers."}
         </p>
 
         <button
           onClick={getArrangement}
-          disabled={!isReady}
-          className={`font-medium px-4 py-2 rounded-3xl ${
-            isReady
-              ? "hover:opacity-80 bg-moss text-moss-light"
-              : "bg-[#C6CCBE] text-[#7C8577] cursor-not-allowed"
+          disabled={locked || isLoading}
+          aria-busy={isLoading}
+          className={`font-medium px-4 py-2 rounded-3xl flex items-center gap-2 ${
+            locked
+              ? "bg-[#C6CCBE] text-[#7C8577] cursor-not-allowed"
+              : "hover:opacity-80 bg-moss text-moss-light disabled:opacity-70 disabled:cursor-wait disabled:hover:opacity-70"
           }`}
         >
-          Get an arrangement
+          {isLoading && (
+            <SpinnerIcon
+              size={18}
+              weight="bold"
+              className="animate-spin"
+              aria-hidden="true"
+            />
+          )}
+          {isLoading ? "Arranging..." : "Get an arrangement"}
         </button>
       </div>
     </section>
