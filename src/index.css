@@ -1,15 +1,431 @@
-@import url("https://fonts.googleapis.com/css2?family=Climate+Crisis:YEAR@1979&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Chango&family=Climate+Crisis:YEAR@1979&family=Fredoka:wght@300..700&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Boldonse&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
 @theme {
-  --font-climatecrisis: "Climate Crisis", sans-serif;
-  --color-moss: #2e4a2e;
-  --color-moss-light: #ffffff;
-  --color-off-white: #f5f1e4;
+  --font-display: "Boldonse", sans-serif;
+  --font-sans: "Inter", sans-serif;
+  --font-editorial: "Instrument Serif", serif;
+
+  --color-forest: #122314;
+  --color-moss: #273f2b;
+  --color-lichen: #7e8371;
+  --color-fern: #b7bda5;
+  --color-sprout: #68ef3f;
+  --color-verdant: #26a200;
+  --color-wash: #e7f9dd;
+  --color-mist: #d9deca;
+  --color-onyx: #30322a;
+  --color-bone: #f2f5eb;
+  --color-stone: #d6d6d6;
 }
 
-body {
-  font-family: "Hanken Grotesk", sans-serif;
-  background-color: var(--color-off-white);
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply m-0 min-w-80 bg-forest font-sans text-onyx antialiased;
+  }
+
+  #root {
+    @apply min-h-screen;
+  }
+
+  button,
+  input {
+    @apply font-[inherit];
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+
+  button:disabled {
+    @apply cursor-not-allowed;
+  }
+
+  button,
+  a,
+  input {
+    @apply focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sprout;
+  }
+
+  ::selection {
+    @apply bg-sprout text-forest;
+  }
+}
+
+@layer components {
+  .site-header {
+    @apply relative z-20 bg-forest px-4 pt-6 sm:px-8 sm:pt-8;
+  }
+
+  .site-nav {
+    @apply mx-auto flex w-full max-w-300 items-center justify-between gap-4 rounded-[28px] border border-onyx bg-onyx/90 px-6 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.25)];
+  }
+
+  .brand {
+    @apply flex items-center gap-2 text-white no-underline;
+  }
+
+  .brand-icon {
+    @apply size-8 text-sprout;
+  }
+
+  .brand-wordmark {
+    @apply text-2xl font-semibold tracking-[-0.04em];
+  }
+
+  .nav-caption {
+    @apply hidden text-sm font-normal text-fern sm:block;
+  }
+
+  .nav-link {
+    @apply inline-flex items-center gap-2 rounded-full border border-fern px-4 py-2 text-sm font-medium text-white no-underline transition-colors hover:border-sprout hover:text-sprout;
+  }
+
+  .hero {
+    @apply relative isolate overflow-hidden bg-forest px-6 pb-24 pt-24 text-center sm:pb-32 sm:pt-32;
+  }
+
+  .hero-orb {
+    @apply pointer-events-none absolute -right-40 top-8 -z-10 size-100 rounded-full opacity-40 sm:-right-16 sm:size-150;
+    background: radial-gradient(
+      circle at 32% 28%,
+      #7e8371 0%,
+      #273f2b 35%,
+      #000000 78%
+    );
+  }
+
+  .hero-content {
+    @apply mx-auto flex max-w-300 flex-col items-center;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-lichen px-4 py-1 text-sm font-normal text-fern;
+  }
+
+  .eyebrow-icon {
+    @apply text-sprout;
+  }
+
+  .hero-title {
+    @apply mt-8 font-display text-[clamp(2.5rem,7vw,5rem)] font-bold leading-[1.08] tracking-[-0.014em] text-white;
+  }
+
+  .hero-title-line {
+    @apply block;
+  }
+
+  .hero-title-accent {
+    @apply text-sprout;
+  }
+
+  .hero-description {
+    @apply mt-8 max-w-144 text-base font-normal leading-relaxed tracking-tight text-fern sm:text-lg;
+  }
+
+  .hero-note {
+    @apply mt-6 font-editorial text-lg italic tracking-wide text-fern;
+  }
+
+  .workspace {
+    @apply bg-white px-4 py-16 sm:px-8 sm:py-24;
+  }
+
+  .workspace-inner {
+    @apply mx-auto w-full max-w-300;
+  }
+
+  .section-heading {
+    @apply mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between;
+  }
+
+  .section-label {
+    @apply mb-2 text-xs font-medium uppercase tracking-[0.14em] text-moss;
+  }
+
+  .section-title {
+    @apply text-3xl font-semibold leading-tight tracking-[-0.03em] text-onyx sm:text-[40px];
+  }
+
+  .section-description {
+    @apply max-w-80 text-sm font-normal leading-relaxed text-moss;
+  }
+
+  .workspace-grid {
+    @apply grid items-start gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)];
+  }
+
+  .inventory-panel {
+    @apply min-w-0 rounded-3xl border border-mist bg-bone p-6 sm:p-8;
+  }
+
+  .panel-heading {
+    @apply mb-6 flex flex-wrap items-center justify-between gap-4;
+  }
+
+  .panel-title {
+    @apply text-xl font-semibold tracking-tight;
+  }
+
+  .count-badge {
+    @apply inline-flex items-center rounded-full bg-wash px-4 py-1 text-xs font-medium text-moss;
+  }
+
+  .flower-form {
+    @apply relative flex w-full items-center gap-2 rounded-3xl border border-mist bg-white p-2 pl-4 transition-colors focus-within:border-verdant;
+  }
+
+  .search-icon {
+    @apply size-5 shrink-0 text-moss;
+  }
+
+  .flower-input {
+    @apply min-w-0 flex-1 bg-transparent py-2 text-base font-normal text-onyx outline-none placeholder:text-lichen focus-visible:outline-none;
+  }
+
+  .add-button {
+    @apply inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-mist bg-transparent text-onyx transition-colors hover:border-verdant hover:bg-wash;
+  }
+
+  .flower-options {
+    @apply absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-3xl border border-mist bg-white p-2;
+  }
+
+  .flower-option {
+    @apply flex cursor-pointer items-center justify-between gap-4 rounded-2xl px-4 py-3 text-sm text-onyx transition-colors;
+  }
+
+  .flower-option-active {
+    @apply bg-wash text-moss;
+  }
+
+  .form-error {
+    @apply mt-4 text-sm font-normal leading-relaxed text-onyx;
+  }
+
+  .inventory-toolbar {
+    @apply mb-4 mt-8 flex flex-wrap items-center justify-between gap-4;
+  }
+
+  .inventory-caption {
+    @apply text-xs font-medium uppercase tracking-[0.14em] text-moss;
+  }
+
+  .reset-button {
+    @apply inline-flex items-center gap-2 rounded-full border border-mist px-4 py-2 text-xs font-medium text-moss transition-colors hover:border-onyx disabled:opacity-40;
+  }
+
+  .reset-button-confirm {
+    @apply border-onyx bg-white text-onyx;
+  }
+
+  .empty-state {
+    @apply flex min-h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-fern px-6 py-8 text-center;
+  }
+
+  .empty-icon {
+    @apply mb-4 flex size-16 items-center justify-center rounded-full border border-mist text-moss;
+  }
+
+  .empty-title {
+    @apply text-lg font-semibold tracking-tight;
+  }
+
+  .empty-description {
+    @apply mt-2 max-w-64 text-sm font-normal leading-relaxed text-moss;
+  }
+
+  .flower-list {
+    @apply m-0 flex list-none flex-col gap-2 p-0;
+  }
+
+  .flower-row {
+    @apply flex flex-wrap items-center gap-4 rounded-2xl border border-mist bg-white p-4;
+  }
+
+  .flower-name-group {
+    @apply flex min-w-0 flex-1 items-center gap-3;
+  }
+
+  .flower-number {
+    @apply text-xs font-normal tabular-nums text-lichen;
+  }
+
+  .flower-name {
+    @apply min-w-0 break-words text-sm font-normal text-onyx;
+  }
+
+  .flower-controls {
+    @apply ml-auto flex items-center gap-2;
+  }
+
+  .quantity-control {
+    @apply flex items-center gap-1 rounded-full border border-mist p-1;
+  }
+
+  .quantity-button {
+    @apply flex size-8 items-center justify-center rounded-full text-moss transition-colors hover:bg-wash disabled:opacity-30;
+  }
+
+  .quantity-value {
+    @apply w-6 text-center text-sm font-medium tabular-nums;
+  }
+
+  .remove-button {
+    @apply flex size-8 items-center justify-center rounded-full text-lichen transition-colors hover:bg-bone hover:text-onyx;
+  }
+
+  .inventory-summary {
+    @apply mt-6 flex items-center justify-between gap-4 border-t border-mist pt-4 text-xs font-normal text-moss;
+  }
+
+  .generate-panel {
+    @apply relative overflow-hidden rounded-3xl border border-onyx bg-forest p-6 text-white sm:p-8;
+  }
+
+  .generate-topline {
+    @apply flex items-center justify-between gap-4;
+  }
+
+  .generate-label {
+    @apply text-xs font-medium uppercase tracking-[0.14em] text-fern;
+  }
+
+  .generate-icon {
+    @apply text-sprout;
+  }
+
+  .generate-title {
+    @apply mt-10 max-w-72 text-[32px] font-semibold leading-tight tracking-[-0.03em];
+  }
+
+  .generate-description {
+    @apply mt-4 min-h-18 max-w-80 text-sm font-normal leading-relaxed text-fern;
+  }
+
+  .progress-track {
+    @apply mt-8 flex gap-2;
+  }
+
+  .progress-segment {
+    @apply h-1 flex-1 rounded-full bg-onyx;
+  }
+
+  .progress-segment-complete {
+    @apply bg-sprout;
+  }
+
+  .progress-caption {
+    @apply mt-3 text-xs font-normal text-fern;
+  }
+
+  .primary-button {
+    @apply mt-8 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-onyx bg-sprout px-6 py-3 text-sm font-semibold text-onyx transition-colors hover:bg-wash disabled:cursor-not-allowed disabled:border-lichen disabled:bg-stone disabled:text-onyx disabled:hover:bg-stone;
+  }
+
+  .primary-button-loading {
+    @apply disabled:cursor-wait;
+  }
+
+  .generate-footnote {
+    @apply mt-4 text-center font-editorial text-lg italic text-fern;
+  }
+
+  .arrangement-region {
+    @apply scroll-mt-8;
+  }
+
+  .arrangement-card {
+    @apply mt-8 overflow-hidden rounded-3xl border border-mist bg-bone;
+  }
+
+  .arrangement-heading {
+    @apply flex flex-wrap items-center justify-between gap-4 border-b border-mist px-6 py-6 sm:px-8;
+  }
+
+  .arrangement-title {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+
+  .arrangement-prose {
+    @apply prose max-w-none px-6 py-6 font-sans text-sm font-normal leading-relaxed sm:px-8 sm:py-8;
+    @apply prose-headings:font-sans prose-headings:font-semibold prose-headings:tracking-tight;
+    @apply prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-lg;
+    @apply prose-headings:mb-4 prose-headings:mt-8 first:prose-headings:mt-0;
+    @apply prose-p:my-4 prose-li:my-2 prose-strong:font-semibold;
+    @apply prose-a:text-moss prose-a:decoration-verdant prose-a:underline-offset-4;
+    @apply prose-blockquote:border-verdant prose-blockquote:font-editorial prose-blockquote:text-2xl;
+    @apply prose-pre:bg-forest prose-pre:text-bone;
+
+    --tw-prose-body: var(--color-onyx);
+    --tw-prose-headings: var(--color-onyx);
+    --tw-prose-bold: var(--color-moss);
+    --tw-prose-bullets: var(--color-verdant);
+    --tw-prose-counters: var(--color-moss);
+    --tw-prose-quotes: var(--color-moss);
+    --tw-prose-code: var(--color-moss);
+    --tw-prose-hr: var(--color-mist);
+  }
+
+  .loading-card {
+    @apply mt-8 flex flex-col gap-4 rounded-3xl border border-mist bg-bone p-6 sm:p-8;
+  }
+
+  .loading-label {
+    @apply flex items-center gap-2 text-sm font-medium text-moss;
+  }
+
+  .loading-line {
+    @apply h-4 animate-pulse rounded-full bg-mist motion-reduce:animate-none;
+  }
+
+  .arrangement-error {
+    @apply mt-8 rounded-2xl border border-fern bg-bone p-6 text-sm font-normal leading-relaxed text-onyx;
+  }
+
+  .site-footer {
+    @apply flex flex-col items-center justify-between gap-4 bg-forest px-6 py-8 text-center text-xs font-normal text-fern sm:flex-row sm:px-8;
+  }
+
+  .footer-note {
+    @apply font-editorial text-lg italic;
+  }
+
+  .workspace-grid > .inventory-panel {
+    @apply contents;
+  }
+
+  .workspace-grid > .inventory-panel > .panel-heading,
+  .workspace-grid > .inventory-panel > .flower-form,
+  .workspace-grid > .inventory-panel > .form-error,
+  .workspace-grid > .inventory-panel > .inventory-toolbar {
+    @apply lg:col-start-1;
+  }
+
+  .workspace-grid > .inventory-panel > .panel-heading {
+    @apply mb-0;
+  }
+
+  .workspace-grid > .inventory-panel > .inventory-toolbar {
+    @apply mb-0 mt-0;
+  }
+
+  .workspace-grid > .inventory-panel > div:last-of-type {
+    @apply min-w-0 lg:col-start-1;
+  }
+
+  .workspace-grid > .inventory-panel > .generate-panel {
+    @apply lg:col-start-2 lg:row-start-1 lg:row-span-6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

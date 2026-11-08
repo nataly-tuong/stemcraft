@@ -1,17 +1,21 @@
-import type { JSX, RefObject } from "react";
+import type { JSX } from "react";
 import {
+  ArrowRightIcon,
+  FlowerTulipIcon,
   MinusIcon,
   PlusIcon,
+  SparkleIcon,
   SpinnerIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
-import FlowerIllustration from "../assets/flower-svgrepo-com.svg";
 
-export type Flower = { name: string; qty: number };
+export type Flower = {
+  name: string;
+  qty: number;
+};
 
 type FlowersListProps = {
   flowers: Flower[];
-  ref: RefObject<HTMLDivElement | null>;
   getArrangement: () => void;
   onChangeQty: (name: string, delta: number) => void;
   onRemove: (name: string) => void;
@@ -22,128 +26,172 @@ type FlowersListProps = {
 const MIN_FLOWERS = 4;
 
 export default function FlowersList({
-  ref,
-  getArrangement,
   flowers,
+  getArrangement,
   onChangeQty,
   onRemove,
   isLoading,
   isUnchanged,
 }: FlowersListProps): JSX.Element {
-  const flowersListItems = flowers.map(({ name, qty }: Flower) => (
-    <li
-      key={name}
-      className="bg-[#FAF8F1] border border-[#E3E0D5] rounded-3xl font-medium py-2 px-4"
-    >
-      <div className="flex items-center gap-3">
-        {name}
-
-        <div className="ml-auto flex items-center gap-2">
-          <div className="flex items-center gap-1 rounded-full border border-[#E3E0D5] bg-[#E5E9DE] p-1">
-            <button
-              type="button"
-              onClick={() => onChangeQty(name, -1)}
-              disabled={qty <= 1}
-              aria-label={`Decrease ${name}`}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-moss text-moss-light hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <MinusIcon size={14} weight="bold" aria-hidden="true" />
-            </button>
-
-            <span className="w-6 text-center tabular-nums" aria-live="polite">
-              {qty}
-            </span>
-
-            <button
-              type="button"
-              onClick={() => onChangeQty(name, 1)}
-              disabled={qty >= 99}
-              aria-label={`Increase ${name}`}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-moss text-moss-light hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <PlusIcon size={14} weight="bold" aria-hidden="true" />
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => onRemove(name)}
-            aria-label={`Remove ${name}`}
-            className="p-1 text-[#7C8577] hover:text-moss"
-          >
-            <TrashIcon size={22} weight="fill" aria-hidden="true" />
-          </button>
-        </div>
-      </div>
-    </li>
-  ));
-
-  const isReady: boolean = flowers.length >= MIN_FLOWERS;
-  const remaining: number = MIN_FLOWERS - flowers.length;
-  const locked: boolean = !isReady || isUnchanged;
+  const isReady = flowers.length >= MIN_FLOWERS;
+  const remaining = Math.max(0, MIN_FLOWERS - flowers.length);
+  const locked = !isReady || isUnchanged;
+  const totalStems = flowers.reduce((total, flower) => total + flower.qty, 0);
 
   return (
-    <section>
-      {flowers.length === 0 ? (
-        <div className="h-37.5 border-[#E3E0D5] border mb-5 shadow-sm flex flex-col gap-2 rounded-md w-full bg-moss-light items-center justify-center">
-          <img
-            src={FlowerIllustration}
-            alt=""
-            aria-hidden="true"
-            className="h-15 w-15 opacity-70"
-          />
-          <p className="text-gray-400">No flowers yet, add one to begin!</p>
-        </div>
-      ) : (
-        <div className="h-full mb-5 shadow-sm border-[#E3E0D5] border flex flex-col rounded-md w-full bg-moss-light items-left">
-          <ul
-            className="list-none flex flex-col gap-2 px-5 pr-5 py-5"
-            aria-live="polite"
-          >
-            {flowersListItems}
-          </ul>
-        </div>
-      )}
+    <>
+      <div>
+        {flowers.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">
+              <FlowerTulipIcon size={32} weight="light" aria-hidden="true" />
+            </div>
 
-      <div
-        ref={ref}
-        className={`border-solid shadow-sm border-[#E3E0D5] border rounded-lg p-4 flex flex-col gap-4 w-full items-center justify-center ${
-          locked ? "bg-[#E5E9DE]" : "bg-moss-light"
-        }`}
-      >
-        <h3 className={`font-bold ${locked ? "text-moss" : ""}`}>
-          Ready for a bouquet?
+            <h3 className="empty-title">Room for something lovely.</h3>
+
+            <p className="empty-description">
+              Add the flowers you have on hand. Your arrangement starts here.
+            </p>
+          </div>
+        ) : (
+          <ul className="flower-list" aria-label="Your selected flowers">
+            {flowers.map(({ name, qty }, index) => (
+              <li key={name} className="flower-row">
+                <div className="flower-name-group">
+                  <span className="flower-number" aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+
+                  <span className="flower-name">{name}</span>
+                </div>
+
+                <div className="flower-controls">
+                  <div className="quantity-control">
+                    <button
+                      type="button"
+                      onClick={() => onChangeQty(name, -1)}
+                      disabled={qty <= 1 || isLoading}
+                      aria-label={`Decrease ${name}`}
+                      className="quantity-button"
+                    >
+                      <MinusIcon size={14} weight="bold" aria-hidden="true" />
+                    </button>
+
+                    <span
+                      className="quantity-value"
+                      aria-live="polite"
+                      aria-atomic="true"
+                    >
+                      <span className="sr-only">{name} quantity: </span>
+                      {qty}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() => onChangeQty(name, 1)}
+                      disabled={qty >= 99 || isLoading}
+                      aria-label={`Increase ${name}`}
+                      className="quantity-button"
+                    >
+                      <PlusIcon size={14} weight="bold" aria-hidden="true" />
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => onRemove(name)}
+                    disabled={isLoading}
+                    aria-label={`Remove ${name}`}
+                    className="remove-button disabled:opacity-30"
+                  >
+                    <TrashIcon size={18} aria-hidden="true" />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="inventory-summary" aria-live="polite">
+          <span>
+            {flowers.length} flower {flowers.length === 1 ? "type" : "types"}
+          </span>
+
+          <span>
+            {totalStems} {totalStems === 1 ? "stem" : "stems"} in total
+          </span>
+        </div>
+      </div>
+
+      <aside className="generate-panel" aria-labelledby="generate-title">
+        <div className="generate-topline">
+          <span className="generate-label">Your personal flower studio</span>
+
+          <SparkleIcon
+            size={24}
+            weight="light"
+            className="generate-icon"
+            aria-hidden="true"
+          />
+        </div>
+
+        <h3 id="generate-title" className="generate-title">
+          A little help from <span className="text-sprout">AI.</span>
+          <br />A lot of possibility.
         </h3>
 
-        <p className={locked ? "text-[#7C8577]" : ""}>
+        <p id="generate-description" className="generate-description">
           {!isReady
-            ? `Add ${remaining} more ${remaining === 1 ? "flower" : "flowers"} to generate an arrangement.`
+            ? `Add ${remaining} more flower ${remaining === 1 ? "type" : "types"} to discover an arrangement made for what you have.`
             : isUnchanged
-              ? "Add, remove, or change a flower to generate a new arrangement."
-              : "Generate an arrangement from your list of flowers."}
+              ? "Your arrangement is ready below. Change your flower selection or quantities to create something new."
+              : "Turn your flowers into a thoughtful bouquet with a personalized, step-by-step arrangement."}
+        </p>
+
+        <div className="progress-track" aria-hidden="true">
+          {Array.from({ length: MIN_FLOWERS }, (_, index) => (
+            <span
+              key={index}
+              className={`progress-segment ${
+                index < flowers.length ? "progress-segment-complete" : ""
+              }`}
+            />
+          ))}
+        </div>
+
+        <p className="progress-caption">
+          {isReady
+            ? "Your flowers are ready to arrange"
+            : `${flowers.length} of ${MIN_FLOWERS} flower types added`}
         </p>
 
         <button
+          type="button"
           onClick={getArrangement}
           disabled={locked || isLoading}
           aria-busy={isLoading}
-          className={`font-medium px-4 py-2 rounded-3xl flex items-center gap-2 ${
-            locked
-              ? "bg-[#C6CCBE] text-[#7C8577] cursor-not-allowed"
-              : "hover:opacity-80 bg-moss text-moss-light disabled:opacity-70 disabled:cursor-wait disabled:hover:opacity-70"
+          aria-describedby="generate-description"
+          className={`primary-button ${
+            isLoading ? "primary-button-loading" : ""
           }`}
         >
-          {isLoading && (
+          {isLoading ? (
             <SpinnerIcon
               size={18}
-              weight="bold"
-              className="animate-spin"
+              className="animate-spin motion-reduce:animate-none"
               aria-hidden="true"
             />
+          ) : (
+            <SparkleIcon size={18} aria-hidden="true" />
           )}
-          {isLoading ? "Arranging..." : "Get an arrangement"}
+
+          {isLoading ? "Arranging your flowers…" : "Create my arrangement"}
+
+          {!isLoading && <ArrowRightIcon size={18} aria-hidden="true" />}
         </button>
-      </div>
-    </section>
+
+        <p className="generate-footnote">Made for the flowers in your hands.</p>
+      </aside>
+    </>
   );
 }

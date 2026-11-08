@@ -1,13 +1,24 @@
-import { FlowerTulipIcon } from "@phosphor-icons/react";
+import { ArrowDownIcon, FlowerTulipIcon } from "@phosphor-icons/react";
 import type { JSX } from "react";
 
 export default function Header(): JSX.Element {
   return (
-    <header className="flex gap-0.5 flex-1 items-center justify-center bg-moss py-4 border-b border-moss">
-      <FlowerTulipIcon size={50} className="text-moss-light" />
-      <h1 className="text-3xl scale-y-140 font-climatecrisis text-moss-light">
-        stemcraft
-      </h1>
+    <header className="site-header">
+      <nav className="site-nav" aria-label="Main navigation">
+        <a href="#" className="brand" aria-label="Stemcraft home">
+          <FlowerTulipIcon
+            className="brand-icon"
+            weight="light"
+            aria-hidden="true"
+          />
+          <span className="brand-wordmark">stemcraft</span>
+        </a>
+
+        <a href="#bouquet-builder" className="nav-link">
+          Start arranging
+          <ArrowDownIcon size={16} aria-hidden="true" />
+        </a>
+      </nav>
     </header>
   );
 }

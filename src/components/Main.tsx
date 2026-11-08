@@ -1,54 +1,109 @@
 import React from "react";
 import type { JSX } from "react";
+import {
+  ArrowCounterClockwiseIcon,
+  ArrowRightIcon,
+  FlowerIcon,
+  PlusIcon,
+  SparkleIcon,
+  SpinnerIcon,
+} from "@phosphor-icons/react";
 import AIArrangement from "./AIArrangement";
 import FlowersList from "./FlowersList";
 import type { Flower } from "./FlowersList";
 import { generateArrangement } from "../ai";
-import { ArrowCounterClockwiseIcon, FlowerIcon } from "@phosphor-icons/react";
 import { Flowers } from "../flowers";
 
 export default function Main(): JSX.Element {
   const [flowers, setFlowers] = React.useState<Flower[]>([]);
-
-  const [query, setQuery] = React.useState<string>("");
-  const [open, setOpen] = React.useState<boolean>(false);
-  const [active, setActive] = React.useState<number>(-1);
-  const [error, setError] = React.useState<string>("");
-
-  const [arrangement, setArrangement] = React.useState<string>("");
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [arrangementError, setArrangementError] = React.useState<string>("");
+  const [query, setQuery] = React.useState("");
+  const [open, setOpen] = React.useState(false);
+  const [active, setActive] = React.useState(-1);
+  const [error, setError] = React.useState("");
+  const [arrangement, setArrangement] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [arrangementError, setArrangementError] = React.useState("");
   const [lastGenerated, setLastGenerated] = React.useState<string | null>(null);
-  const [confirmReset, setConfirmReset] = React.useState<boolean>(false);
-  const arrangementSection = React.useRef<HTMLDivElement>(null);
+  const [confirmReset, setConfirmReset] = React.useState(false);
 
-  const signature: string = flowers
-    .map((f: Flower) => `${f.name}:${f.qty}`)
+  const arrangementSection = React.useRef<HTMLDivElement>(null);
+  const requestInFlight = React.useRef(false);
+  const listboxId = React.useId();
+
+  const signature = flowers
+    .map((flower) => `${flower.name}:${flower.qty}`)
     .sort()
     .join("|");
-  const isUnchanged: boolean = lastGenerated === signature;
 
-  React.useEffect((): void => {
-    if (arrangement !== "" && arrangementSection.current !== null) {
-      arrangementSection.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [arrangement]);
+  const isUnchanged = lastGenerated === signature;
+  const q = query.trim().toLowerCase();
 
-  React.useEffect((): (() => void) | undefined => {
-    if (!confirmReset) return undefined;
-    const timer = setTimeout(() => setConfirmReset(false), 3000);
-    return () => clearTimeout(timer);
+  React.useEffect(() => {
+    if (!arrangement || isLoading) return;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    arrangementSection.current?.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  }, [arrangement, isLoading]);
+
+  React.useEffect(() => {
+    if (!confirmReset) return;
+
+    const timer = window.setTimeout(() => setConfirmReset(false), 3000);
+
+    return () => window.clearTimeout(timer);
   }, [confirmReset]);
 
+  function score(name: string): number {
+    const normalized = name.toLowerCase();
+
+    if (normalized === q) return 0;
+    if (normalized.startsWith(q)) return 1;
+
+    if (normalized.split(" ").some((word) => word.startsWith(q))) {
+      return 2;
+    }
+
+    return 3;
+  }
+
+  const matches =
+    q === ""
+      ? []
+      : Flowers.filter((flower: string) => flower.toLowerCase().includes(q))
+          .sort(
+            (a: string, b: string) =>
+              score(a) - score(b) || a.length - b.length || a.localeCompare(b),
+          )
+          .slice(0, 6);
+
+  const showSuggestions = open && matches.length > 0;
+
   async function getArrangement(): Promise<void> {
-    if (isUnchanged) return;
-    const requestedSignature: string = signature;
+    if (requestInFlight.current || flowers.length < 4 || isUnchanged) {
+      return;
+    }
+
+    const requestedSignature = signature;
+
+    requestInFlight.current = true;
     setIsLoading(true);
     setArrangementError("");
+    setConfirmReset(false);
+    setOpen(false);
+
     try {
-      const arrangementMarkdown: string = await generateArrangement(
-        flowers.map((f: Flower) => (f.qty > 1 ? `${f.qty} ${f.name}` : f.name)),
+      const arrangementMarkdown = await generateArrangement(
+        flowers.map((flower) =>
+          flower.qty > 1 ? `${flower.qty} ${flower.name}` : flower.name,
+        ),
       );
+
       setArrangement(arrangementMarkdown);
       setLastGenerated(requestedSignature);
     } catch {
@@ -56,61 +111,59 @@ export default function Main(): JSX.Element {
         "Something went wrong making your arrangement. Please try again.",
       );
     } finally {
+      requestInFlight.current = false;
       setIsLoading(false);
     }
   }
 
-  const q: string = query.trim().toLowerCase();
-
-  function score(name: string): number {
-    const n = name.toLowerCase();
-    if (n === q) return 0;
-    if (n.startsWith(q)) return 1;
-    if (n.split(" ").some((word: string) => word.startsWith(q))) return 2;
-    return 3;
-  }
-
-  const matches: string[] =
-    q === ""
-      ? []
-      : Flowers.filter((f: string) => f.toLowerCase().includes(q))
-          .sort(
-            (a: string, b: string) =>
-              score(a) - score(b) || a.length - b.length || a.localeCompare(b),
-          )
-          .slice(0, 6);
-
   function addFlower(name: string): void {
-    setFlowers((prev: Flower[]): Flower[] =>
-      prev.some((f: Flower) => f.name === name)
-        ? prev.map((f: Flower) =>
-            f.name === name ? { ...f, qty: Math.min(f.qty + 1, 99) } : f,
+    if (requestInFlight.current) return;
+
+    setFlowers((previous) =>
+      previous.some((flower) => flower.name === name)
+        ? previous.map((flower) =>
+            flower.name === name
+              ? { ...flower, qty: Math.min(flower.qty + 1, 99) }
+              : flower,
           )
-        : [...prev, { name, qty: 1 }],
+        : [...previous, { name, qty: 1 }],
     );
+
     setQuery("");
     setOpen(false);
     setActive(-1);
     setError("");
+    setConfirmReset(false);
   }
 
   function changeQty(name: string, delta: number): void {
-    setFlowers((prev: Flower[]): Flower[] =>
-      prev.map((f: Flower) =>
-        f.name === name
-          ? { ...f, qty: Math.min(99, Math.max(1, f.qty + delta)) }
-          : f,
+    if (requestInFlight.current) return;
+
+    setFlowers((previous) =>
+      previous.map((flower) =>
+        flower.name === name
+          ? {
+              ...flower,
+              qty: Math.min(99, Math.max(1, flower.qty + delta)),
+            }
+          : flower,
       ),
     );
+
+    setConfirmReset(false);
   }
 
   function removeFlower(name: string): void {
-    setFlowers((prev: Flower[]): Flower[] =>
-      prev.filter((f: Flower) => f.name !== name),
-    );
+    if (requestInFlight.current) return;
+
+    setFlowers((previous) => previous.filter((flower) => flower.name !== name));
+
+    setConfirmReset(false);
   }
 
   function resetAll(): void {
+    if (requestInFlight.current) return;
+
     setFlowers([]);
     setArrangement("");
     setLastGenerated(null);
@@ -123,6 +176,8 @@ export default function Main(): JSX.Element {
   }
 
   function handleResetClick(): void {
+    if (requestInFlight.current) return;
+
     if (confirmReset) {
       resetAll();
     } else {
@@ -130,11 +185,12 @@ export default function Main(): JSX.Element {
     }
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
-    e.preventDefault();
-    if (q === "") return;
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>): void {
+    event.preventDefault();
 
-    const pick: string | undefined = matches[active] ?? matches[0];
+    if (!q || requestInFlight.current) return;
+
+    const pick = matches[active] ?? matches[0];
 
     if (pick) {
       addFlower(pick);
@@ -144,157 +200,254 @@ export default function Main(): JSX.Element {
     }
   }
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
       setOpen(true);
-      setActive((i: number) => Math.min(i + 1, matches.length - 1));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActive((i: number) => Math.max(i - 1, 0));
-    } else if (e.key === "Escape") {
+      setActive((index) => Math.min(index + 1, matches.length - 1));
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setOpen(true);
+      setActive((index) => (matches.length > 0 ? Math.max(index - 1, 0) : -1));
+    } else if (event.key === "Escape") {
       setOpen(false);
+      setActive(-1);
     }
   }
 
   return (
-    <main className="flex flex-col px-6 gap-3">
-      <form
-        onSubmit={handleSubmit}
-        className="relative max-w-md border-[#E3E0D5] border w-full rounded-3xl items-center shadow-sm mx-auto flex bg-white pl-4 py-1 gap-2"
-      >
-        <FlowerIcon
-          size={22}
-          weight="duotone"
-          className="text-moss shrink-0"
-          aria-hidden="true"
-        />
+    <>
+      <main>
+        <section className="hero" aria-labelledby="hero-title">
+          <div className="hero-orb" aria-hidden="true" />
 
-        <input
-          value={query}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>): void => {
-            setQuery(e.target.value);
-            setOpen(true);
-            setActive(-1);
-            setError("");
-          }}
-          onKeyDown={handleKeyDown}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setOpen(false)}
-          maxLength={25}
-          name="flower"
-          autoComplete="off"
-          role="combobox"
-          aria-expanded={open && matches.length > 0}
-          aria-controls="flower-listbox"
-          aria-activedescendant={
-            active >= 0 ? `flower-option-${active}` : undefined
-          }
-          aria-label="Add a flower"
-          type="text"
-          placeholder="e.g. peony"
-          className="flex-1 min-w-0 text-black py-2 outline-none bg-transparent placeholder:text-gray-400"
-        />
+          <div className="hero-content">
+            <span className="eyebrow">
+              <SparkleIcon
+                size={16}
+                className="eyebrow-icon"
+                aria-hidden="true"
+              />
+              A fresh approach to flower arranging
+            </span>
 
-        <button
-          type="submit"
-          className="bg-moss relative right-1 before:content-['+'] before:mr-2
-    text-moss-light px-5 rounded-4xl py-2 font-medium hover:opacity-90"
+            <h1 id="hero-title" className="hero-title">
+              <span className="hero-title-line">Your flowers.</span>
+              <span className="hero-title-line">
+                A little <span className="hero-title-accent">AI.</span>
+              </span>
+              <span className="hero-title-line">Endless possibility.</span>
+            </h1>
+
+            <p className="hero-description">
+              Beautiful arrangements begin with what you have. Tell us what’s in
+              your vase and let a little{" "}
+              <span className="text-sprout">artificial intelligence</span> help
+              bring it together.
+            </p>
+
+            <p className="hero-note">Less guesswork. More growing things.</p>
+          </div>
+        </section>
+
+        <section
+          id="bouquet-builder"
+          className="workspace scroll-mt-8"
+          aria-labelledby="builder-title"
         >
-          Add flower
-        </button>
+          <div className="workspace-inner">
+            <div className="section-heading">
+              <div>
+                <p className="section-label">The arrangement studio</p>
+                <h2 id="builder-title" className="section-title">
+                  Start with your stems.
+                </h2>
+              </div>
 
-        {open && matches.length > 0 && (
-          <ul
-            id="flower-listbox"
-            role="listbox"
-            className="absolute left-0 right-0 top-full mt-2 z-10 overflow-hidden rounded-2xl bg-white shadow-md border border-[#E3E0D5] p-1"
-          >
-            {matches.map((flower: string, i: number) => (
-              <li
-                key={flower}
-                id={`flower-option-${i}`}
-                role="option"
-                aria-selected={i === active}
-                onMouseEnter={() => setActive(i)}
-                onMouseDown={(e: React.MouseEvent): void => {
-                  e.preventDefault();
-                  addFlower(flower);
-                }}
-                className={`px-4 py-2 rounded-xl cursor-pointer text-black transition-colors ${
-                  i === active ? "bg-[#E5E9DE] text-moss" : ""
-                }`}
+              <p className="section-description">
+                Pick your flowers, adjust the quantities, and we’ll help you
+                find their best arrangement.
+              </p>
+            </div>
+
+            <div className="workspace-grid">
+              <section
+                className="inventory-panel"
+                aria-labelledby="inventory-title"
               >
-                {flower}
-              </li>
-            ))}
-          </ul>
-        )}
-      </form>
+                <div className="panel-heading">
+                  <h3 id="inventory-title" className="panel-title">
+                    Flowers on hand
+                  </h3>
 
-      {error && (
-        <p role="alert" className="text-center text-sm text-red-700">
-          {error}
-        </p>
-      )}
+                  <span className="count-badge">Your flower collection</span>
+                </div>
 
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="font-bold text-xl">Flowers on hand</h2>
+                <form onSubmit={handleSubmit} className="flower-form">
+                  <FlowerIcon
+                    className="search-icon"
+                    weight="light"
+                    aria-hidden="true"
+                  />
 
-        {flowers.length > 0 && (
-          <button
-            type="button"
-            onClick={handleResetClick}
-            disabled={isLoading}
-            aria-label={
-              confirmReset ? "Confirm erase all flowers" : "Erase all flowers"
-            }
-            className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-              confirmReset
-                ? "border-red-700 bg-red-50 text-red-700"
-                : "border-[#E3E0D5] bg-white text-[#7C8577] hover:text-moss"
-            }`}
-          >
-            <ArrowCounterClockwiseIcon
-              size={16}
-              weight="bold"
-              aria-hidden="true"
-            />
-            {confirmReset ? "Click again to confirm" : "Erase all"}
-          </button>
-        )}
-      </div>
+                  <input
+                    value={query}
+                    onChange={(event) => {
+                      setQuery(event.target.value);
+                      setOpen(true);
+                      setActive(-1);
+                      setError("");
+                    }}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => setOpen(true)}
+                    onBlur={() => {
+                      setOpen(false);
+                      setActive(-1);
+                    }}
+                    disabled={isLoading}
+                    maxLength={25}
+                    name="flower"
+                    autoComplete="off"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded={showSuggestions}
+                    aria-controls={listboxId}
+                    aria-activedescendant={
+                      showSuggestions && active >= 0
+                        ? `${listboxId}-option-${active}`
+                        : undefined
+                    }
+                    aria-label="Search for a flower to add"
+                    aria-invalid={Boolean(error)}
+                    aria-describedby={error ? `${listboxId}-error` : undefined}
+                    type="text"
+                    placeholder="Try peony, rose, or tulip"
+                    className="flower-input disabled:opacity-50"
+                  />
 
-      <FlowersList
-        ref={arrangementSection}
-        getArrangement={getArrangement}
-        flowers={flowers}
-        onChangeQty={changeQty}
-        onRemove={removeFlower}
-        isLoading={isLoading}
-        isUnchanged={isUnchanged}
-      />
+                  <button
+                    type="submit"
+                    disabled={isLoading || !q}
+                    aria-label="Add flower"
+                    className="add-button disabled:opacity-30"
+                  >
+                    <PlusIcon size={20} weight="bold" aria-hidden="true" />
+                  </button>
 
-      {isLoading && (
-        <div
-          role="status"
-          className="border border-[#E3E0D5] shadow-sm rounded-lg bg-moss-light p-6 flex flex-col gap-3 animate-pulse"
-        >
-          <div className="h-5 w-1/3 rounded bg-[#E5E9DE]" />
-          <div className="h-4 w-full rounded bg-[#E5E9DE]" />
-          <div className="h-4 w-5/6 rounded bg-[#E5E9DE]" />
-          <div className="h-4 w-2/3 rounded bg-[#E5E9DE]" />
-          <span className="sr-only">Generating your arrangement</span>
-        </div>
-      )}
+                  {showSuggestions && (
+                    <ul
+                      id={listboxId}
+                      role="listbox"
+                      aria-label="Matching flowers"
+                      className="flower-options"
+                    >
+                      {matches.map((flower: string, index: number) => (
+                        <li
+                          key={flower}
+                          id={`${listboxId}-option-${index}`}
+                          role="option"
+                          aria-selected={index === active}
+                          onMouseEnter={() => setActive(index)}
+                          onMouseDown={(event) => {
+                            event.preventDefault();
+                            addFlower(flower);
+                          }}
+                          className={`flower-option ${
+                            index === active ? "flower-option-active" : ""
+                          }`}
+                        >
+                          <span>{flower}</span>
+                          <PlusIcon size={16} aria-hidden="true" />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </form>
 
-      {arrangementError && (
-        <p role="alert" className="text-center text-sm text-red-700">
-          {arrangementError}
-        </p>
-      )}
+                {error && (
+                  <p
+                    id={`${listboxId}-error`}
+                    role="alert"
+                    className="form-error"
+                  >
+                    {error}
+                  </p>
+                )}
 
-      {arrangement && !isLoading && <AIArrangement arrangement={arrangement} />}
-    </main>
+                <div className="inventory-toolbar">
+                  <span className="inventory-caption">Your selection</span>
+
+                  {flowers.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleResetClick}
+                      disabled={isLoading}
+                      aria-label={
+                        confirmReset
+                          ? "Confirm erase all flowers"
+                          : "Erase all flowers"
+                      }
+                      className={`reset-button ${
+                        confirmReset ? "reset-button-confirm" : ""
+                      }`}
+                    >
+                      <ArrowCounterClockwiseIcon size={14} aria-hidden="true" />
+                      {confirmReset ? "Click again to confirm" : "Clear all"}
+                    </button>
+                  )}
+                </div>
+
+                <FlowersList
+                  flowers={flowers}
+                  onChangeQty={changeQty}
+                  onRemove={removeFlower}
+                  getArrangement={getArrangement}
+                  isLoading={isLoading}
+                  isUnchanged={isUnchanged}
+                />
+              </section>
+            </div>
+
+            <div
+              ref={arrangementSection}
+              className="arrangement-region"
+              aria-busy={isLoading}
+            >
+              {isLoading && (
+                <div role="status" className="loading-card">
+                  <div className="loading-label">
+                    <SpinnerIcon
+                      size={18}
+                      className="animate-spin motion-reduce:animate-none"
+                      aria-hidden="true"
+                    />
+                    Finding a little flower harmony…
+                  </div>
+
+                  <div className="loading-line w-1/3" />
+                  <div className="loading-line w-full" />
+                  <div className="loading-line w-5/6" />
+                  <div className="loading-line w-2/3" />
+                </div>
+              )}
+
+              {arrangementError && (
+                <p role="alert" className="arrangement-error">
+                  {arrangementError}
+                </p>
+              )}
+
+              {arrangement && !isLoading && (
+                <AIArrangement arrangement={arrangement} />
+              )}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="site-footer">
+        <span>stemcraft</span>
+      </footer>
+    </>
   );
 }
